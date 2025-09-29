@@ -201,7 +201,7 @@ class PCategoria : BaseActivity() {
             }
         }
     }
-    
+
     fun btnListar(filtro: String): List<Map<String, Any?>> {
         lifecycleScope.launch(Dispatchers.IO) {
             val lista = n.getTabla(filtro)
