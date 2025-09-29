@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
+    tools:context=".MainActivity">
+
+    <!-- Header con título -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        app:title="Sistema de Gestión"
+        app:titleTextColor="?attr/colorOnPrimary"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <!-- Título de bienvenida -->
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bienvenido al Sistema"
+                android:textAppearance="?attr/textAppearanceHeadlineMedium"
+                android:textColor="?attr/colorOnSurface"
+                android:layout_marginBottom="8dp"/>
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Selecciona una opción para comenzar"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:layout_marginBottom="32dp"/>
+
+            <!-- Grid de botones principales -->
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:rowCount="3"
+                android:layout_marginBottom="24dp">
+
+                <!-- Categorías -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="?attr/colorPrimaryContainer">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCategorias"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="📂\nCategorías"
+                        android:textSize="16sp"
+                        android:gravity="center"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        app:backgroundTint="@android:color/transparent"/>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Productos -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="?attr/colorSecondaryContainer">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnProductos"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="📦\nProductos"
+                        android:textSize="16sp"
+                        android:gravity="center"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        app:backgroundTint="@android:color/transparent"/>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Ventas -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="?attr/colorTertiaryContainer">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnVentas"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="💰\nVentas"
+                        android:textSize="16sp"
+                        android:gravity="center"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        app:backgroundTint="@android:color/transparent"/>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Compras -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="?attr/colorErrorContainer">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCompras"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="🛒\nCompras"
+                        android:textSize="16sp"
+                        android:gravity="center"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        app:backgroundTint="@android:color/transparent"/>
+                </com.google.android.material.card.MaterialCardView>
+            </GridLayout>
+
+            <!-- Botón de reportes (ancho completo) -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginHorizontal="8dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="?attr/colorSurfaceVariant">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnReportes"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="📊 Reportes y Estadísticas"
+                    android:textSize="16sp"
+                    android:gravity="center"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    app:backgroundTint="@android:color/transparent"/>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
