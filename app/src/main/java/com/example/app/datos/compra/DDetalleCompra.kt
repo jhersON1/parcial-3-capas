@@ -15,9 +15,7 @@ class DDetalleCompra(context: Context) {
     fun setCantidad(v:Int) { cantidad = v }
     fun setCostoUnitario(v:Double) { costoUnitario = v }
     fun setIdCompra(v:Int) { idCompra = v }
-    fun setIdProducto(v:Int) { idProducto = v }
-    
-    // Método de compatibilidad
+
     fun setProducto(v:Int) { idProducto = v }
 
     fun crear(): Boolean {

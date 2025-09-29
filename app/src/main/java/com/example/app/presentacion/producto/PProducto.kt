@@ -37,7 +37,6 @@ class PProducto : BaseActivity() {
     private var precio: Double = 0.0
     private var stock: Int = 0
 
-    // Campo adicional para FK (no en diagrama pero necesario para BD)
     private var categoriaId: Int = 0
 
     private lateinit var b: ActivityPproductoBinding

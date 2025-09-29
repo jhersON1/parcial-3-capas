@@ -8,7 +8,6 @@ class DProducto(context: Context) {
 
     private val bd: Conexion = Conexion.instancia(context)
 
-    // Atributos de datos (D)
     private var id: Int = 0
     private var nombre: String = ""
     private var descripcion: String = ""

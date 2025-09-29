@@ -16,8 +16,7 @@ class DDetalleVenta(context: Context) {
     fun setIdProducto(v:Int) { id_producto = v }
     fun setIdVenta(v:Int) { id_venta = v }
     fun setPrecioUnitario(v:Double) { precioUnitario = v }
-    
-    // Métodos de compatibilidad
+
     fun setProducto(v:Int) { id_producto = v }
     fun setVenta(v:Int) { id_venta = v }
 

@@ -38,6 +38,4 @@ class NCompra(private val context: Context) {
         return true
     }
 
-    // Alias 1:1 con el diagrama
-    fun registra(fechaHora:String, items: List<Map<String, Any>>): Boolean = registrar(fechaHora, items)
 }

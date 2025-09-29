@@ -11,8 +11,7 @@ class NVenta(private val context: Context) {
         if (idProducto <= 0 || cantidad <= 0 || precioUnitario < 0) return false
         val dp = DProducto(context)
         dp.setId(idProducto)
-        // verificar stock disponible
-        // Si no existe producto, ajustaStock fallará; pero aquí sólo validamos cantidad positiva
+
         return true
     }
 
@@ -51,6 +50,4 @@ class NVenta(private val context: Context) {
         return true
     }
 
-    // Alias 1:1 con el diagrama
-    fun registra(fechaHora:String, items: List<Map<String, Any>>): Boolean = registrar(fechaHora, items)
 }
