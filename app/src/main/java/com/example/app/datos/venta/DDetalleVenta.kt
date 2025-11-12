@@ -13,8 +13,7 @@ class DDetalleVenta(context: Context) {
     private var precioUnitario: Double = 0.0
 
     fun setCantidad(v:Int) { cantidad = v }
-    fun setIdProducto(v:Int) { id_producto = v }
-    fun setIdVenta(v:Int) { id_venta = v }
+
     fun setPrecioUnitario(v:Double) { precioUnitario = v }
 
     fun setProducto(v:Int) { id_producto = v }

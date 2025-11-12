@@ -14,7 +14,6 @@ class DVenta(context: Context) {
 
     fun setFechaHora(v:String) { fechaHora = v }
 
-    fun setId(v:Int) { id = v }
     fun setTotal(v:Double) { total = v }
     fun getId(): Int = id
 

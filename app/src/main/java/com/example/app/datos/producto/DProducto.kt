@@ -119,8 +119,5 @@ class DProducto(context: Context) {
         return db.update("producto", cv, "id=?", arrayOf(id.toString())) > 0
     }
 
-    // --- Alias 1:1 con el diagrama ---
-    fun crea(): Boolean = crear()
-    fun elimina(): Boolean = eliminar()
     fun lista(filtro: String): List<Map<String, Any?>> = listar(filtro)
 }

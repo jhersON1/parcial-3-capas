@@ -109,10 +109,16 @@ class Conexion private constructor(private val appCtx: Context) :
         private var INSTANCIA: Conexion? = null
 
         /** Obtiene la única instancia usando ApplicationContext (no Activity) */
-        fun instancia(ctx: Context): Conexion =
-            INSTANCIA ?: synchronized(this) {
-                INSTANCIA ?: Conexion(ctx.applicationContext).also { INSTANCIA = it }
+        fun instancia(ctx: Context): Conexion {
+            if (INSTANCIA == null) {
+                synchronized(this) {
+                    if (INSTANCIA == null) {
+                        INSTANCIA = Conexion(ctx.applicationContext)
+                    }
+                }
             }
+            return INSTANCIA!!
+        }
     }
 }
 

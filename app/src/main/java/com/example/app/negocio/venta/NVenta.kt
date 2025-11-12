@@ -1,18 +1,21 @@
 package com.example.app.negocio.venta
 
 import android.content.Context
-import com.example.app.datos.producto.DProducto
 import com.example.app.datos.venta.DDetalleVenta
 import com.example.app.datos.venta.DVenta
+import com.example.app.negocio.producto.NProducto
 
-class NVenta(private val context: Context) {
+class NVenta(
+    context: Context,
+    private val nProducto: NProducto
+) {
+    // Atributos de clase según diagrama UML
+    private val dVenta: DVenta = DVenta(context)
+    private val dDetalleVenta: DDetalleVenta = DDetalleVenta(context)
 
     fun validarItem(idProducto:Int, cantidad:Int, precioUnitario:Double): Boolean {
-        if (idProducto <= 0 || cantidad <= 0 || precioUnitario < 0) return false
-        val dp = DProducto(context)
-        dp.setId(idProducto)
-
-        return true
+        // Delegar la validación a NProducto
+        return nProducto.validarItem(idProducto, cantidad, precioUnitario)
     }
 
     fun calcularTotal(items: List<Map<String, Any>>): Boolean {
@@ -23,15 +26,11 @@ class NVenta(private val context: Context) {
         if (!calcularTotal(items)) return false
         val total = items.sumOf { (it["cantidad"] as Int) * (it["precio_unitario"] as Double) }
 
-        val dv = DVenta(context)
-        dv.setFechaHora(fechaHora)
-        dv.setTotal(total)
-        if (!dv.crearVenta()) return false
+        dVenta.setFechaHora(fechaHora)
+        dVenta.setTotal(total)
+        if (!dVenta.crearVenta()) return false
 
-        val det = DDetalleVenta(context)
-        det.setVenta(dv.getId())
-
-        val dp = DProducto(context)
+        dDetalleVenta.setVenta(dVenta.getId())
 
         for (it in items) {
             val idP = it["id_producto"] as Int
@@ -39,13 +38,13 @@ class NVenta(private val context: Context) {
             val preU = it["precio_unitario"] as Double
             if (!validarItem(idP, cant, preU)) return false
 
-            det.setProducto(idP)
-            det.setCantidad(cant)
-            det.setPrecioUnitario(preU)
-            if (!det.crear()) return false
+            dDetalleVenta.setProducto(idP)
+            dDetalleVenta.setCantidad(cant)
+            dDetalleVenta.setPrecioUnitario(preU)
+            if (!dDetalleVenta.crear()) return false
 
-            dp.setId(idP)
-            if (!dp.ajustaStock(-cant)) return false
+            // Delegar ajuste de stock a NProducto (no más DProducto aquí)
+            if (!nProducto.descontarStock(idP, cant)) return false
         }
         return true
     }
