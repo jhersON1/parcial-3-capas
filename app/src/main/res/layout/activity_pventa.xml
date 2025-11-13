@@ -45,6 +45,21 @@
                 android:layout_height="wrap_content"
                 android:text="Fecha"/>
 
+            <!-- Selector de Estrategia de Descuento -->
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tipo de Descuento"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
+                android:layout_marginTop="16dp"/>
+
+            <Spinner
+                android:id="@+id/spinnerEstrategia"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:minHeight="48dp"/>
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/etIdProducto"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"

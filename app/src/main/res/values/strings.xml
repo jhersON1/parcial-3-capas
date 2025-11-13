@@ -1,3 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Parcial-3-Capas</string>
+    <string name="app_name">Parcial3Capas</string>
+
+    <!-- Estrategias de descuento -->
+    <string-array name="estrategias_descuento">
+        <item>Sin Descuento</item>
+        <item>Descuento VIP (15%)</item>
+        <item>Descuento por Monto (10% si compra >= $500)</item>
+    </string-array>
 </resources>
+

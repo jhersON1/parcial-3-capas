@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -14,7 +16,7 @@ import com.example.app.R
 import com.example.app.base.BaseActivity
 import com.example.app.databinding.ActivityPventaBinding
 import com.example.app.negocio.venta.NVenta
-import com.google.android.material.snackbar.Snackbar
+ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -55,6 +57,7 @@ class PVenta : BaseActivity() {
         setupToolbar()
         setupRecyclerView()
         setupButtons()
+        setupEstrategiaSpinner()
         setupBottomNavigation(b.bottomNavigation, R.id.nav_ventas)
 
         fechaHora = fechaAhora()
@@ -93,6 +96,43 @@ class PVenta : BaseActivity() {
         }
     }
 
+    private fun setupEstrategiaSpinner() {
+        // Configurar el adaptador del spinner
+        val estrategias = resources.getStringArray(R.array.estrategias_descuento)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, estrategias)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        b.spinnerEstrategia.adapter = adapter
+
+        // Configurar el listener para cambiar la estrategia
+        b.spinnerEstrategia.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                cambiarEstrategia(position)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // No hacer nada
+            }
+        }
+    }
+
+    private fun cambiarEstrategia(position: Int) {
+        val nombreEstrategia = when (position) {
+            0 -> "Sin Descuento"
+            1 -> "Descuento VIP"
+            2 -> "Descuento por Monto"
+            else -> "Sin Descuento"
+        }
+
+        // La capa de NEGOCIO se encarga de instanciar la estrategia
+        n.seleccionarEstrategia(nombreEstrategia)
+
+        // Actualizar el total con la nueva estrategia
+        actualizarTotal()
+
+        // Mostrar mensaje
+        snack("💰 Estrategia seleccionada: $nombreEstrategia")
+    }
+
     private fun fechaAhora(): String = dateFormat.format(Date())
 
     // ---- Helpers ----
@@ -108,7 +148,35 @@ class PVenta : BaseActivity() {
     }
 
     private fun actualizarTotal() {
-        b.tvTotal.text = "Total: ${"%.2f".format(totalAmount())}"
+        // Si no hay items, mostrar 0
+        if (items.isEmpty()) {
+            b.tvTotal.text = "Total: 0.00"
+            return
+        }
+
+        // Calcular subtotal simple
+        val subtotal = totalAmount()
+
+        // Convertir items al formato de mapa para la estrategia
+        val itemsMapa = items.map {
+            mapOf(
+                "cantidad" to it.cantidad,
+                "precio_unitario" to it.precioUnitario
+            )
+        }
+
+        // Calcular total usando NVenta que delega a PricingContext
+        val totalConDescuento = n.calcularTotalConDescuento(fechaHora, itemsMapa)
+
+        // Mostrar subtotal y total con descuento
+        if (subtotal != totalConDescuento) {
+            val descuento = subtotal - totalConDescuento
+            b.tvTotal.text = "Subtotal: ${"%.2f".format(subtotal)}\n" +
+                            "Descuento: -${"%.2f".format(descuento)}\n" +
+                            "Total: ${"%.2f".format(totalConDescuento)}"
+        } else {
+            b.tvTotal.text = "Total: ${"%.2f".format(totalConDescuento)}"
+        }
     }
 
     // ---- Métodos del diagrama usando los atributos de la clase ----
