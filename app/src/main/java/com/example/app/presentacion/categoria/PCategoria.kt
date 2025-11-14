@@ -3,6 +3,7 @@ package com.example.app.presentacion.categoria
 import android.os.Bundle
 import android.text.InputType
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
@@ -14,6 +15,7 @@ import com.example.app.R
 import com.example.app.base.BaseActivity
 import com.example.app.databinding.ActivityPcategoriaBinding
 import com.example.app.negocio.categoria.NCategoria
+import com.example.app.negocio.categoria.command.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,46 +34,26 @@ class PCategoria : BaseActivity() {
     private var id: Int = 0
     private var nombre: String = ""
 
+    data class Item(val id: Int, val nombre: String)
+
     private lateinit var b: ActivityPcategoriaBinding
     private lateinit var n: NCategoria
+    private val invoker = CategoriaInvoker()
 
-    // Adapter simple SIN archivo extra (usa un layout integrado)
-    private val data = mutableListOf<Pair<Int, String>>()
-    private val adapter = object : RecyclerView.Adapter<CatVH>() {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CatVH {
-            val v = LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_categoria, parent, false)
-            return CatVH(v as ViewGroup)
-        }
-        override fun onBindViewHolder(holder: CatVH, position: Int) {
-            val (id, nombre) = data[position]
-            holder.txtId.text = "ID: $id"
-            holder.txtNombre.text = nombre
-            
-            // Configurar botones individuales
-            holder.btnModificar.setOnClickListener {
-                btnModificar(id, nombre)
-            }
-            
-            holder.btnEliminar.setOnClickListener {
-                btnEliminar(id)
-            }
-        }
-        override fun getItemCount() = data.size
-    }
-
-    class CatVH(root: ViewGroup) : RecyclerView.ViewHolder(root) {
-        val txtId: TextView = root.findViewById(R.id.txtId)
-        val txtNombre: TextView = root.findViewById(R.id.txtNombre)
-        val btnModificar: com.google.android.material.button.MaterialButton = root.findViewById(R.id.btnModificar)
-        val btnEliminar: com.google.android.material.button.MaterialButton = root.findViewById(R.id.btnEliminar)
-    }
+    private val items: MutableList<Item> = mutableListOf()
+    private lateinit var adapter: CategoriaItemAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         b = ActivityPcategoriaBinding.inflate(layoutInflater)
         setContentView(b.root)
         n = NCategoria(applicationContext)
+
+        adapter = CategoriaItemAdapter(
+            items,
+            onModificar = { idCat, nom -> btnModificar(idCat, nom) },
+            onEliminar = { idCat -> btnEliminar(idCat) }
+        )
 
         setupToolbar()
         setupRecyclerView()
@@ -130,26 +112,17 @@ class PCategoria : BaseActivity() {
     
     private fun btnEliminar(categoriaId: Int) {
         lifecycleScope.launch(Dispatchers.IO) {
-            val ok = try { 
-                // Verificar primero si tiene productos
-                val tieneProductos = n.getLista("").any {
-                    false
-                }
-                n.eliminar(categoriaId) 
-            } catch (e: Exception) { 
-                withContext(Dispatchers.Main) {
-                    snack(" Error al eliminar: ${e.message}")
-                }
-                false 
-            }
-            
+            // ================== PATRÓN COMMAND ==================
+            // 1. Crear el comando concreto con el Receiver (NCategoria) y parámetros
+            val eliminarCommand = EliminarCategoriaCommand(n, categoriaId)
+            // 2. Configurar el comando en el Invoker
+            invoker.setCommand(eliminarCommand)
+            // 3. Ejecutar el comando a través del Invoker
+            val res = invoker.executeCommand()
+            // ====================================================
             withContext(Dispatchers.Main) {
-                if (ok) {
-                    snack(" Categoría ID:$categoriaId eliminada exitosamente")
-                    btnListar("")
-                } else {
-                    snack(" No se pudo eliminar categoría ID:$categoriaId. Verifica que no tenga productos asociados.")
-                }
+                snack((if (res.success) "✅" else "❌") + " ${res.message}")
+                if (res.success) btnListar("")
             }
         }
     }
@@ -159,45 +132,25 @@ class PCategoria : BaseActivity() {
         nombre = b.etNombre.editText?.text.toString()
     }
 
-    // ---- Métodos exactos del diagrama ----
     fun btnRegistrar() {
         actualizarDesdeUI()
-        
-        if (nombre.isBlank()) {
-            snack(" Error: El nombre de la categoría es requerido")
-            return
-        }
-        
+        if (nombre.isBlank()) { snack("❌ El nombre de la categoría es requerido"); return }
         lifecycleScope.launch(Dispatchers.IO) {
-            val ok = try {
-                // Si el campo ID tiene valor > 0, es modificación; si no, es nuevo registro
-                if (id > 0) {
-                    // Modificación: usar el ID especificado
-                    n.modificar(id, nombre)
-                } else {
-                    // Nuevo registro: usar ID 0 para que la BD use auto-increment
-                    n.registrar(0, nombre)
-                }
-            } catch (e: Exception) { 
-                withContext(Dispatchers.Main) {
-                    snack(" Error: ${e.message}")
-                }
-                false 
+            // ================== PATRÓN COMMAND ==================
+            // 1. Crear el comando concreto (Registrar o Modificar) con el Receiver y parámetros
+            val command: CategoriaCommand = if (id > 0) {
+                ModificarCategoriaCommand(n, id, nombre)
+            } else {
+                RegistrarCategoriaCommand(n, 0, nombre)
             }
-            
+            // 2. Configurar el comando en el Invoker
+            invoker.setCommand(command)
+            // 3. Ejecutar el comando a través del Invoker
+            val res = invoker.executeCommand()
+            // ====================================================
             withContext(Dispatchers.Main) {
-                val esModificacion = id > 0
-                val mensaje = if (esModificacion) {
-                    if (ok) "Categoría modificada exitosamente" else " No se pudo modificar"
-                } else {
-                    if (ok) "Categoría registrada exitosamente" else " No se pudo registrar"
-                }
-                
-                snack(mensaje)
-                if (ok) {
-                    limpiarFormulario()
-                }
-                btnListar("")
+                snack((if (res.success) "✅" else "❌") + " ${res.message}")
+                if (res.success) { limpiarFormulario(); btnListar("") }
             }
         }
     }
@@ -206,22 +159,11 @@ class PCategoria : BaseActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             val lista = n.getTabla(filtro)
             withContext(Dispatchers.Main) {
-                data.clear()
-                data.addAll(lista.map {
-                    val id = (it["id"] as? Number)?.toInt() ?: 0
-                    val nombre = (it["nombre"] as? String).orEmpty()
-                    id to nombre
-                })
+                items.clear()
+                items.addAll(lista.map { Item(((it["id"] as? Number)?.toInt() ?: 0), (it["nombre"] as? String).orEmpty()) })
                 adapter.notifyDataSetChanged()
-                
-                // Mostrar/ocultar estado vacío solamente
-                if (lista.isEmpty()) {
-                    b.layoutEmpty.visibility = android.view.View.VISIBLE
-                    b.rv.visibility = android.view.View.GONE
-                } else {
-                    b.layoutEmpty.visibility = android.view.View.GONE
-                    b.rv.visibility = android.view.View.VISIBLE
-                }
+                if (lista.isEmpty()) { b.layoutEmpty.visibility = View.VISIBLE; b.rv.visibility = View.GONE }
+                else { b.layoutEmpty.visibility = View.GONE; b.rv.visibility = View.VISIBLE }
             }
         }
         return n.getTabla(filtro)
@@ -234,5 +176,40 @@ class PCategoria : BaseActivity() {
 
     private fun snack(msg: String) {
         Snackbar.make(b.root, msg, Snackbar.LENGTH_SHORT).show()
+    }
+}
+
+
+class CategoriaItemAdapter(
+    private val items: MutableList<PCategoria.Item>,
+    private val onModificar: (Int, String) -> Unit,
+    private val onEliminar: (Int) -> Unit
+) : RecyclerView.Adapter<CategoriaItemViewHolder>() {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoriaItemViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_categoria, parent, false)
+        return CategoriaItemViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: CategoriaItemViewHolder, position: Int) {
+        val item = items[position]
+        holder.bind(item, onModificar, onEliminar)
+    }
+
+    override fun getItemCount(): Int = items.size
+}
+
+class CategoriaItemViewHolder(root: View) : RecyclerView.ViewHolder(root) {
+    private val txtId: TextView = root.findViewById(R.id.txtId)
+    private val txtNombre: TextView = root.findViewById(R.id.txtNombre)
+    private val btnModificar: com.google.android.material.button.MaterialButton = root.findViewById(R.id.btnModificar)
+    private val btnEliminar: com.google.android.material.button.MaterialButton = root.findViewById(R.id.btnEliminar)
+
+    fun bind(item: PCategoria.Item, onModificar: (Int, String) -> Unit, onEliminar: (Int) -> Unit) {
+        txtId.text = "ID: ${item.id}"
+        txtNombre.text = item.nombre
+        btnModificar.setOnClickListener { onModificar(item.id, item.nombre) }
+        btnEliminar.setOnClickListener { onEliminar(item.id) }
     }
 }

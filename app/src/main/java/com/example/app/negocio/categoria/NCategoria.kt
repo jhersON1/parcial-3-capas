@@ -29,8 +29,6 @@ class NCategoria(context: Context) {
         return dCategoria.eliminar()
     }
 
-    fun getLista(filtro:String): List<Map<String, Any?>> = dCategoria.listar(filtro)
     fun getTabla(filtro:String): List<Map<String, Any?>> = dCategoria.lista(filtro)
 
-    fun existe(id:Int): Boolean = dCategoria.existeCategoria(id)
 }

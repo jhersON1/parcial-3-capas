@@ -34,9 +34,6 @@ class DCategoria(context: Context) {
         return db.delete("categoria", "id=?", arrayOf(id.toString())) > 0
     }
 
-    // Alias para cumplir con nombres del diagrama
-    fun elimina(): Boolean = eliminar()
-
     fun listar(filtro:String): List<Map<String, Any?>> {
         val db = bd.readableDatabase
         val cur = db.rawQuery(
